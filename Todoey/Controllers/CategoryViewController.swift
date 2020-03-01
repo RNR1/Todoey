@@ -3,7 +3,7 @@
 //  Todoey
 //
 //  Created by Ron Braha on 29/02/2020.
-//  Copyright © 2020 App Brewery. All rights reserved.
+//  Copyright © 2020 Ron Braha. All rights reserved.
 //
 
 import UIKit

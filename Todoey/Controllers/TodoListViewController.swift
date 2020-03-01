@@ -2,8 +2,8 @@
 //  ViewController.swift
 //  Todoey
 //
-//  Created by Philipp Muellauer on 02/12/2019.
-//  Copyright © 2019 App Brewery. All rights reserved.
+//  Created by Ron Braha on 29/02/2020.
+//  Copyright © 2020 Ron Braha. All rights reserved.
 //
 
 import UIKit
