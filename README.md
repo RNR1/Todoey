@@ -1,6 +1,6 @@
 # Todoey ✓
 
-Todoey is a Todo app built with Swift 5 and Core Data for iOS 13.
+Todoey is a Todo app built with Swift 5 and Realm for iOS 13.
 
 The app allows you to create categories and tasks, and mark them as done.
 
