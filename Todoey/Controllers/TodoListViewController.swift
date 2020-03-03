@@ -8,9 +8,11 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
 class TodoListViewController: SwipeTableViewController {
     
+    @IBOutlet weak var searchBar: UISearchBar!
     var todoItems: Results<Item>?
     let realm = try! Realm()
     var selectedCategory: Category? {
@@ -21,6 +23,39 @@ class TodoListViewController: SwipeTableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableView.separatorStyle = .none
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if let colorHex = selectedCategory?.color {
+            
+            title = selectedCategory!.name
+            
+            guard let navBar = navigationController?.navigationBar else {fatalError("Navigation controller does not exist")}
+            if let navBarColor = UIColor(hexString: colorHex) {
+                
+                if #available(iOS 13.0, *) {
+                    let appearance = UINavigationBarAppearance().self
+                    
+                    appearance.backgroundColor = navBarColor
+                    appearance.largeTitleTextAttributes = [
+                        NSAttributedString.Key.foregroundColor: ContrastColorOf(navBarColor, returnFlat: true)]
+                    
+                    navBar.standardAppearance = appearance
+                    navBar.compactAppearance = appearance
+                    navBar.scrollEdgeAppearance = appearance
+                    navBar.tintColor = ContrastColorOf(navBarColor, returnFlat: true)
+                    
+                } else {
+                    navBar.barTintColor = navBarColor
+                    navBar.tintColor = ContrastColorOf(navBarColor, returnFlat: true)
+                    navBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: ContrastColorOf(navBarColor, returnFlat: true)]
+                }
+                
+                searchBar.barTintColor = navBarColor
+                searchBar.searchTextField.backgroundColor = FlatWhite()
+            }
+        }
     }
     
     //MARK: - TableView Datasource Methods
@@ -33,6 +68,13 @@ class TodoListViewController: SwipeTableViewController {
         if let item = todoItems?[indexPath.row] {
             cell.textLabel?.text = item.title
             cell.accessoryType = item.done ? .checkmark : .none
+            if let color = UIColor(hexString: selectedCategory!.color)?.darken(byPercentage:
+                CGFloat(indexPath.row) / CGFloat(todoItems!.count)) {
+                cell.backgroundColor = color
+                cell.textLabel?.textColor = ContrastColorOf(color, returnFlat: true)
+                cell.tintColor = ContrastColorOf(color, returnFlat: true)
+                
+            }
         } else {
             cell.textLabel?.text = "No Items Added"
         }
@@ -88,7 +130,14 @@ class TodoListViewController: SwipeTableViewController {
         
         alert.addAction(action)
         
-        present(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion:{
+           alert.view.superview?.isUserInteractionEnabled = true
+           alert.view.superview?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.dismissOnTapOutside)))
+        })
+    }
+    
+    @objc func dismissOnTapOutside(){
+       self.dismiss(animated: true, completion: nil)
     }
     
     func loadItems() {

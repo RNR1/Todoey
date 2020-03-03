@@ -8,6 +8,7 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
 
 class CategoryViewController: SwipeTableViewController {
@@ -19,6 +20,14 @@ class CategoryViewController: SwipeTableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         loadCategories()
+        tableView.separatorStyle = .none
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        guard let navBar = navigationController?.navigationBar else {fatalError("Navigation controller does not exist")}
+        let color = UIColor(hexString: "1D9BF6")
+        navBar.backgroundColor = color
+        navBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: ContrastColorOf(color!, returnFlat: true)]
     }
     
     //MARK: - TableViewDataSource Methods
@@ -26,12 +35,15 @@ class CategoryViewController: SwipeTableViewController {
         return categories?.count ?? 1
     }
     
-
-    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let category = categories?[indexPath.row]
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
-        cell.textLabel?.text = category?.name ?? "No Categories Added Yet"
+        if let category = categories?[indexPath.row] {
+            cell.textLabel?.text = category.name
+            guard let categoryColor = UIColor(hexString: category.color) else {fatalError()}
+            cell.backgroundColor = categoryColor
+            cell.textLabel?.textColor = ContrastColorOf(categoryColor, returnFlat: true)
+            
+        }
         return cell
     }
     
@@ -77,8 +89,11 @@ class CategoryViewController: SwipeTableViewController {
             
             let newCategory = Category()
             newCategory.name = textField.text!
+            newCategory.color = UIColor.randomFlat().hexValue()
             self.save(category: newCategory)
         }
+        
+        
         
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Create new Category"
@@ -87,8 +102,17 @@ class CategoryViewController: SwipeTableViewController {
         
         alert.addAction(action)
         
-        present(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion:{
+           alert.view.superview?.isUserInteractionEnabled = true
+           alert.view.superview?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.dismissOnTapOutside)))
+        })
     }
+    
+    @objc func dismissOnTapOutside(){
+       self.dismiss(animated: true, completion: nil)
+    }
+    
+    
     //MARK: - TableViewDelegate Methods
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
@@ -100,8 +124,11 @@ class CategoryViewController: SwipeTableViewController {
         
         if let indexPath = tableView.indexPathForSelectedRow {
             destinationVC.selectedCategory = categories?[indexPath.row]
-            
+            tableView.deselectRow(at: indexPath, animated: true)
         }
+        
+        
+        
     }
 }
 
