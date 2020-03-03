@@ -19,3 +19,6 @@ this app is built as part of The AppBrewery Swift Course by Angela Yu
 
 ### Add Item
 ![Add Item](Documentation/add-task.png?raw=true)
+
+### Search
+![search](Documentation/search-task.png?raw=true)
